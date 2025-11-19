@@ -1,0 +1,22 @@
+{
+  "shared_onedriveforbusiness": {
+    "connectionName": "shared-onedriveforbusiness",
+    "source": "Embedded",
+    "id": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+    "tier": "NotSpecified",
+    "displayName": "OneDrive for Business",
+    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onedriveforbusiness/icon.png",
+    "brandColor": "#094AB2",
+    "description": "OneDrive for Business is a cloud storage, file hosting service that allows users to sync files and later access them from a web browser or mobile device.",
+    "purpose": "Connect to OneDrive for Business to manage your files. You can perform various actions such as upload, update, get, and delete files.",
+    "connectionParameters": {},
+    "apiSummaries": [
+      {
+        "type": "apiconnection",
+        "displayName": "OneDrive for Business",
+        "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onedriveforbusiness/icon.png",
+        "brandColor": "#094AB2"
+      }
+    ]
+  }
+}

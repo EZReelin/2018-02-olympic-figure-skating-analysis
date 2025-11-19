@@ -1,0 +1,232 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    },
+    "$authentication": {
+      "defaultValue": {},
+      "type": "SecureObject"
+    },
+    "hawkeye_TranscriptFolderPath (hawkeye_TranscriptFolderPath)": {
+      "defaultValue": "/Hawkeye/Transcripts/",
+      "type": "String",
+      "metadata": {
+        "schemaName": "hawkeye_TranscriptFolderPath",
+        "description": "OneDrive folder path for transcript files"
+      }
+    }
+  },
+  "triggers": {
+    "manual": {
+      "type": "Request",
+      "kind": "Button",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "FileId": {
+              "type": "string",
+              "description": "OneDrive file ID of the audio file"
+            },
+            "FileName": {
+              "type": "string",
+              "description": "Name of the audio file"
+            },
+            "FileContent": {
+              "type": "string",
+              "description": "Content of the audio file"
+            }
+          },
+          "required": [
+            "FileId",
+            "FileName",
+            "FileContent"
+          ]
+        }
+      },
+      "metadata": {
+        "operationMetadataId": "trigger-child1-001"
+      }
+    }
+  },
+  "actions": {
+    "Initialize_File_Name_Without_Extension": {
+      "type": "InitializeVariable",
+      "inputs": {
+        "variables": [
+          {
+            "name": "FileNameWithoutExt",
+            "type": "string",
+            "value": "@replace(triggerBody()?['FileName'], concat('.', last(split(triggerBody()?['FileName'], '.'))), '')"
+          }
+        ]
+      },
+      "runAfter": {},
+      "metadata": {
+        "operationMetadataId": "action-child1-001"
+      }
+    },
+    "Transcribe_Audio_File": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_cognitiveservicesspeech",
+          "operationId": "SpeechToText",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_cognitiveservicesspeech"
+        },
+        "parameters": {
+          "audio": "@triggerBody()?['FileContent']",
+          "language": "en-US"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": {
+        "Initialize_File_Name_Without_Extension": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-002"
+      }
+    },
+    "Initialize_Transcript_Text": {
+      "type": "InitializeVariable",
+      "inputs": {
+        "variables": [
+          {
+            "name": "TranscriptText",
+            "type": "string",
+            "value": "@body('Transcribe_Audio_File')?['DisplayText']"
+          }
+        ]
+      },
+      "runAfter": {
+        "Transcribe_Audio_File": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-003"
+      }
+    },
+    "Create_OneNote_Page": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_onenote",
+          "operationId": "CreatePageInSection",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_onenote"
+        },
+        "parameters": {
+          "sectionId": "@{first(body('List_OneNote_Sections'))?['id']}",
+          "title": "@concat('Audio Transcript - ', variables('FileNameWithoutExt'))",
+          "body": "@concat('<html><head><title>', variables('FileNameWithoutExt'), '</title></head><body><h1>Audio Recording</h1><p>File: ', triggerBody()?['FileName'], '</p><h2>Transcript</h2><p>', replace(variables('TranscriptText'), decodeUriComponent('%0A'), '<br/>'), '</p></body></html>')"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": {
+        "List_OneNote_Sections": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-004"
+      }
+    },
+    "List_OneNote_Sections": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_onenote",
+          "operationId": "ListSections",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_onenote"
+        },
+        "parameters": {},
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": {
+        "Initialize_Transcript_Text": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-005"
+      }
+    },
+    "Compose_Transcript_File_Name": {
+      "type": "Compose",
+      "inputs": "@concat(variables('FileNameWithoutExt'), '.txt')",
+      "runAfter": {
+        "Create_OneNote_Page": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-006"
+      }
+    },
+    "Create_Transcript_File": {
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_onedriveforbusiness",
+          "operationId": "CreateFile",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness"
+        },
+        "parameters": {
+          "dataset": "root",
+          "folderPath": "@parameters('hawkeye_TranscriptFolderPath (hawkeye_TranscriptFolderPath)')",
+          "name": "@outputs('Compose_Transcript_File_Name')",
+          "body": "@variables('TranscriptText')"
+        },
+        "authentication": "@parameters('$authentication')"
+      },
+      "runAfter": {
+        "Compose_Transcript_File_Name": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-007"
+      }
+    },
+    "Response": {
+      "type": "Response",
+      "kind": "Http",
+      "inputs": {
+        "statusCode": 200,
+        "body": {
+          "TranscriptContent": "@variables('TranscriptText')",
+          "TranscriptFileId": "@outputs('Create_Transcript_File')?['body/Id']",
+          "OneNotePageId": "@outputs('Create_OneNote_Page')?['body/id']"
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "TranscriptContent": {
+              "type": "string"
+            },
+            "TranscriptFileId": {
+              "type": "string"
+            },
+            "OneNotePageId": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "runAfter": {
+        "Create_Transcript_File": [
+          "Succeeded"
+        ]
+      },
+      "metadata": {
+        "operationMetadataId": "action-child1-008"
+      }
+    }
+  },
+  "outputs": {}
+}

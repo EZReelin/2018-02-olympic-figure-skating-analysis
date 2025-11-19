@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "name": "",
+    "properties": {
+      "FileId": {
+        "type": "string",
+        "description": "OneDrive file ID of the audio file"
+      },
+      "FileName": {
+        "type": "string",
+        "description": "Name of the audio file"
+      },
+      "FileContent": {
+        "type": "string",
+        "description": "Content of the audio file"
+      }
+    }
+  },
+  "connectionReferences": {
+    "shared_cognitiveservicesspeech": {
+      "connectionName": "shared-cognitiveservicesspeech",
+      "source": "Embedded",
+      "id": "/providers/Microsoft.PowerApps/apis/shared_cognitiveservicesspeech",
+      "tier": "NotSpecified"
+    },
+    "shared_onenote": {
+      "connectionName": "shared-onenote",
+      "source": "Embedded",
+      "id": "/providers/Microsoft.PowerApps/apis/shared_onenote",
+      "tier": "NotSpecified"
+    },
+    "shared_onedriveforbusiness": {
+      "connectionName": "shared-onedriveforbusiness",
+      "source": "Embedded",
+      "id": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+      "tier": "NotSpecified"
+    }
+  },
+  "apiVersion": "1.0.0.0",
+  "isCustomizable": true,
+  "displayName": "Child Flow - OneNote and Transcript",
+  "description": "Creates OneNote page with audio and transcript, exports transcript to text file",
+  "kind": "Button",
+  "template": {
+    "id": "",
+    "name": "",
+    "properties": {}
+  },
+  "schemaVersion": "1.0.0.0",
+  "packageTelemetryId": "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
+  "environmentVariables": [
+    {
+      "name": "hawkeye_TranscriptFolderPath",
+      "type": "String",
+      "defaultValue": "/Hawkeye/Transcripts/"
+    }
+  ]
+}

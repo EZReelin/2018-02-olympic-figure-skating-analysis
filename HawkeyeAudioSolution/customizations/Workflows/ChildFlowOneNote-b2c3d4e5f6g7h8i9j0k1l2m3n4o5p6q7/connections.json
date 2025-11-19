@@ -1,0 +1,62 @@
+{
+  "shared_cognitiveservicesspeech": {
+    "connectionName": "shared-cognitiveservicesspeech",
+    "source": "Embedded",
+    "id": "/providers/Microsoft.PowerApps/apis/shared_cognitiveservicesspeech",
+    "tier": "NotSpecified",
+    "displayName": "Azure Cognitive Services Speech",
+    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/cognitiveservicesspeech/icon.png",
+    "brandColor": "#1A4987",
+    "description": "Azure Cognitive Services Speech provides speech-to-text and text-to-speech capabilities.",
+    "purpose": "Transcribe audio files to text using Azure Cognitive Services.",
+    "connectionParameters": {},
+    "apiSummaries": [
+      {
+        "type": "apiconnection",
+        "displayName": "Azure Cognitive Services Speech",
+        "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/cognitiveservicesspeech/icon.png",
+        "brandColor": "#1A4987"
+      }
+    ]
+  },
+  "shared_onenote": {
+    "connectionName": "shared-onenote",
+    "source": "Embedded",
+    "id": "/providers/Microsoft.PowerApps/apis/shared_onenote",
+    "tier": "NotSpecified",
+    "displayName": "OneNote (Business)",
+    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onenote/icon.png",
+    "brandColor": "#7719AA",
+    "description": "Connect to OneNote to create and manage pages and sections in your notebooks.",
+    "purpose": "Create OneNote pages with audio transcripts.",
+    "connectionParameters": {},
+    "apiSummaries": [
+      {
+        "type": "apiconnection",
+        "displayName": "OneNote (Business)",
+        "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onenote/icon.png",
+        "brandColor": "#7719AA"
+      }
+    ]
+  },
+  "shared_onedriveforbusiness": {
+    "connectionName": "shared-onedriveforbusiness",
+    "source": "Embedded",
+    "id": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+    "tier": "NotSpecified",
+    "displayName": "OneDrive for Business",
+    "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onedriveforbusiness/icon.png",
+    "brandColor": "#094AB2",
+    "description": "OneDrive for Business is a cloud storage, file hosting service that allows users to sync files and later access them from a web browser or mobile device.",
+    "purpose": "Save transcript files to OneDrive for Business.",
+    "connectionParameters": {},
+    "apiSummaries": [
+      {
+        "type": "apiconnection",
+        "displayName": "OneDrive for Business",
+        "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/onedriveforbusiness/icon.png",
+        "brandColor": "#094AB2"
+      }
+    ]
+  }
+}

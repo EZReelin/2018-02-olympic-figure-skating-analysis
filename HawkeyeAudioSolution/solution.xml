@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.24052.00186" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SolutionManifest>
+    <UniqueName>HawkeyeAudioProcessing</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Hawkeye Audio Processing Solution" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="Automated audio processing solution with transcription and AI summarization for Hawkeye project" languagecode="1033" />
+    </Descriptions>
+    <Version>1.0.0.0</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>HawkeyePublisher</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Hawkeye Publisher" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions>
+        <Description description="Publisher for Hawkeye Audio Processing Solutions" languagecode="1033" />
+      </Descriptions>
+      <EMailAddress>admin@hawkeye.local</EMailAddress>
+      <SupportingWebsiteUrl>https://hawkeye.local</SupportingWebsiteUrl>
+      <CustomizationPrefix>hawkeye</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City />
+          <County />
+          <Country />
+          <PostalCode />
+          <StateOrProvince />
+          <Line1 />
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="29" schemaName="hawkeye_ParentAudioFlow" behavior="0" id="{a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6}" />
+      <RootComponent type="29" schemaName="hawkeye_ChildFlowOneNote" behavior="0" id="{b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7}" />
+      <RootComponent type="29" schemaName="hawkeye_ChildFlowAISummary" behavior="0" id="{c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8}" />
+      <RootComponent type="380" schemaName="hawkeye_AudioFolderPath" behavior="0" id="{d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9}" />
+      <RootComponent type="380" schemaName="hawkeye_TranscriptFolderPath" behavior="0" id="{e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0}" />
+      <RootComponent type="380" schemaName="hawkeye_SummaryFolderPath" behavior="0" id="{f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u1}" />
+      <RootComponent type="380" schemaName="hawkeye_MeetingIdentifierPrefix" behavior="0" id="{g7h8i9j0-k1l2-m3n4-o5p6-q7r8s9t0u1v2}" />
+    </RootComponents>
+    <MissingDependencies />
+  </SolutionManifest>
+</ImportExportXml>
