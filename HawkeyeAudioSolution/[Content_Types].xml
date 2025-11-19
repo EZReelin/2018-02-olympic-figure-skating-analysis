@@ -4,14 +4,5 @@
   <Default Extension="json" ContentType="application/json" />
   <Default Extension="txt" ContentType="text/plain" />
   <Override PartName="/solution.xml" ContentType="application/xml" />
-  <Override PartName="/customizations.xml" ContentType="application/xml" />
-  <Override PartName="/customizations/Workflows/ParentAudioFlow-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6/definition.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ParentAudioFlow-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6/manifest.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ParentAudioFlow-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6/connections.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowOneNote-b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7/definition.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowOneNote-b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7/manifest.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowOneNote-b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7/connections.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowAISummary-c3d4e5f6a7b849c0d1e2f3a4b5c6d7e8/definition.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowAISummary-c3d4e5f6a7b849c0d1e2f3a4b5c6d7e8/manifest.json" ContentType="application/json" />
-  <Override PartName="/customizations/Workflows/ChildFlowAISummary-c3d4e5f6a7b849c0d1e2f3a4b5c6d7e8/connections.json" ContentType="application/json" />
+  <Override PartName="/customizations/customizations.xml" ContentType="application/xml" />
 </Types>

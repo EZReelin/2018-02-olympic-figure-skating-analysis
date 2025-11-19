@@ -66,7 +66,7 @@
     },
     "Create_Summary_Prompt": {
       "type": "Compose",
-      "inputs": "@concat('Analyze the following transcript and provide:\n1. A concise summary (2-3 paragraphs)\n2. Key topics discussed\n3. Important insights and takeaways\n4. Action items (if any)\n5. Patterns and themes identified\n\nTranscript:\n', triggerBody()?['TranscriptContent'])",
+      "inputs": "@concat('Analyze the following transcript and provide:\\n1. A concise summary (2-3 paragraphs)\\n2. Key topics discussed\\n3. Important insights and takeaways\\n4. Action items (if any)\\n5. Patterns and themes identified\\n\\nTranscript:\\n', triggerBody()?['TranscriptContent'])",
       "runAfter": {
         "Initialize_File_Name_Without_Extension": [
           "Succeeded"
@@ -123,7 +123,7 @@
     },
     "Create_Insights_Prompt": {
       "type": "Compose",
-      "inputs": "@concat('Based on this summary, identify:\n1. Key patterns in the discussion\n2. Sentiment analysis (positive, neutral, negative)\n3. Main participants (if identifiable)\n4. Important decisions or conclusions\n5. Follow-up questions or areas needing clarification\n\nSummary:\n', variables('SummaryText'))",
+      "inputs": "@concat('Based on this summary, identify:\\n1. Key patterns in the discussion\\n2. Sentiment analysis (positive, neutral, negative)\\n3. Main participants (if identifiable)\\n4. Important decisions or conclusions\\n5. Follow-up questions or areas needing clarification\\n\\nSummary:\\n', variables('SummaryText'))",
       "runAfter": {
         "Initialize_Summary_Text": [
           "Succeeded"

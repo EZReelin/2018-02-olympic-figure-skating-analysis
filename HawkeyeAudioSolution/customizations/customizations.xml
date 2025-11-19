@@ -4,7 +4,7 @@
   <Roles />
   <Workflows>
     <Workflow WorkflowId="{a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6}" Name="hawkeye_ParentAudioFlow">
-      <JsonFileName>/Workflows/ParentAudioFlow-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6/definition.json</JsonFileName>
+      <JsonFileName>Workflows/ParentAudioFlow-a1b2c3d4e5f647a8b9c0d1e2f3a4b5c6/definition.json</JsonFileName>
       <Type>1</Type>
       <Subprocess>0</Subprocess>
       <Category>5</Category>
@@ -32,7 +32,7 @@
       </Descriptions>
     </Workflow>
     <Workflow WorkflowId="{b2c3d4e5-f6a7-48b9-c0d1-e2f3a4b5c6d7}" Name="hawkeye_ChildFlowOneNote">
-      <JsonFileName>/Workflows/ChildFlowOneNote-b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7/definition.json</JsonFileName>
+      <JsonFileName>Workflows/ChildFlowOneNote-b2c3d4e5f6a748b9c0d1e2f3a4b5c6d7/definition.json</JsonFileName>
       <Type>1</Type>
       <Subprocess>0</Subprocess>
       <Category>5</Category>
@@ -60,7 +60,7 @@
       </Descriptions>
     </Workflow>
     <Workflow WorkflowId="{c3d4e5f6-a7b8-49c0-d1e2-f3a4b5c6d7e8}" Name="hawkeye_ChildFlowAISummary">
-      <JsonFileName>/Workflows/ChildFlowAISummary-c3d4e5f6a7b849c0d1e2f3a4b5c6d7e8/definition.json</JsonFileName>
+      <JsonFileName>Workflows/ChildFlowAISummary-c3d4e5f6a7b849c0d1e2f3a4b5c6d7e8/definition.json</JsonFileName>
       <Type>1</Type>
       <Subprocess>0</Subprocess>
       <Category>5</Category>
