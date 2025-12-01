@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <PackageManifestVersion>1.0.0</PackageManifestVersion>
+  <PackageUniqueName>BatchOldTranscriptsToMasterTable</PackageUniqueName>
+  <PackageLocalizedNames>
+    <LocalizedName languagecode="1033" description="Batch – Old Transcripts to Master Table" />
+  </PackageLocalizedNames>
+  <PackageDescriptions>
+    <Description languagecode="1033" description="Manual trigger flow to process old transcripts with AI and add to master table" />
+  </PackageDescriptions>
+  <Publisher>
+    <UniqueName>DieCo</UniqueName>
+    <LocalizedNames>
+      <LocalizedName languagecode="1033" description="Die Co Inc" />
+    </LocalizedNames>
+  </Publisher>
+  <SolutionPackageVersion>1.0.0</SolutionPackageVersion>
+</Manifest>

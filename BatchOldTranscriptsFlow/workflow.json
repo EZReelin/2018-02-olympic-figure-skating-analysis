@@ -1,0 +1,152 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    }
+  },
+  "triggers": {
+    "manual": {
+      "type": "Request",
+      "kind": "Button",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  },
+  "actions": {
+    "List_files_in_folder": {
+      "runAfter": {},
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_onedriveforbusiness",
+          "operationId": "ListFolder",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness"
+        },
+        "parameters": {
+          "id": "/Andrew - Die Co Inc/Recordings/Old Transcripts"
+        },
+        "authentication": "@parameters('$connections')['shared_onedriveforbusiness']['connectionId']"
+      }
+    },
+    "Apply_to_each": {
+      "foreach": "@outputs('List_files_in_folder')?['body/value']",
+      "actions": {
+        "Get_file_content": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_onedriveforbusiness",
+              "operationId": "GetFileContent",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness"
+            },
+            "parameters": {
+              "id": "@items('Apply_to_each')?['Id']"
+            },
+            "authentication": "@parameters('$connections')['shared_onedriveforbusiness']['connectionId']"
+          }
+        },
+        "Create_text_with_GPT": {
+          "runAfter": {
+            "Get_file_content": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_aibuilder",
+              "operationId": "PredictChatGPT",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_aibuilder"
+            },
+            "parameters": {
+              "modelId": "default",
+              "prompt": "You are DieCo's Process Analyst. From the attached transcript, return ONLY this CSV row (no extra text, no markdown):\nPerson,Topic,Unique Variation vs Others,Date,Summary Link\nMike,Quoting,Always checks margin before sending,2025-11-15,https://placeholder.com/temp.pdf",
+              "temperature": 0.7,
+              "maxTokens": 1000,
+              "files": [
+                {
+                  "name": "@{items('Apply_to_each')?['Name']}",
+                  "contentBytes": "@{body('Get_file_content')}"
+                }
+              ]
+            },
+            "authentication": "@parameters('$connections')['shared_aibuilder']['connectionId']"
+          }
+        },
+        "Compose": {
+          "runAfter": {
+            "Create_text_with_GPT": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@split(outputs('Create_text_with_GPT')?['body/text'], ',')"
+        },
+        "Create_file": {
+          "runAfter": {
+            "Compose": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_onedriveforbusiness",
+              "operationId": "CreateFile",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness"
+            },
+            "parameters": {
+              "folderPath": "/Andrew - Die Co Inc/Recordings/Completed Summaries",
+              "name": "@{outputs('Compose')?[0]}_@{outputs('Compose')?[1]}_@{formatDateTime(outputs('Compose')?[3],'yyyy-MM-dd')}_Summary.pdf",
+              "body": "@outputs('Create_text_with_GPT')?['body/text']"
+            },
+            "authentication": "@parameters('$connections')['shared_onedriveforbusiness']['connectionId']"
+          }
+        },
+        "Add_a_row_into_a_table": {
+          "runAfter": {
+            "Create_file": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_excelonlinebusiness",
+              "operationId": "AddRowToTable",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+            },
+            "parameters": {
+              "source": "me",
+              "drive": "me",
+              "file": "/Andrew - Die Co Inc/Recordings/Process_Comparison_Across_People.xlsx",
+              "table": "ComparisonTable",
+              "item/Person": "@outputs('Compose')?[0]",
+              "item/Topic": "@outputs('Compose')?[1]",
+              "item/Unique Variation vs Others": "@outputs('Compose')?[2]",
+              "item/Date": "@outputs('Compose')?[3]",
+              "item/Summary Link (PDF)": "@outputs('Create_file')?['body/{Link}']"
+            },
+            "authentication": "@parameters('$connections')['shared_excelonlinebusiness']['connectionId']"
+          }
+        }
+      },
+      "runAfter": {
+        "List_files_in_folder": [
+          "Succeeded"
+        ]
+      },
+      "type": "Foreach"
+    }
+  },
+  "outputs": {}
+}
