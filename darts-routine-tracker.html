@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Darts Routine Tracker</title>
+    <style>
+        /* ==================== RESET & BASE STYLES ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #F5F7FA;
+            color: #212121;
+            font-size: 16px;
+            line-height: 1.5;
+            padding-bottom: 80px; /* Space for bottom nav */
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER & PROGRESS ==================== */
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header .date {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            height: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
+            height: 100%;
+            transition: width 0.4s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            min-width: 50px;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ==================== TIME BLOCKS ==================== */
+        .time-block {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .time-block.current {
+            box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
+            border: 2px solid #FF9800;
+        }
+
+        .block-header {
+            background: #E3F2FD;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .time-block.current .block-header {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: white;
+        }
+
+        .block-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .block-icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .block-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .block-time {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .block-progress {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            color: #2196F3;
+        }
+
+        .time-block.current .block-progress {
+            background: rgba(255,255,255,0.95);
+            color: #F57C00;
+        }
+
+        .block-content {
+            padding: 0;
+        }
+
+        /* ==================== TASKS ==================== */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.2s ease;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item:active {
+            background: #FAFAFA;
+        }
+
+        .task-checkbox {
+            min-width: 48px;
+            min-height: 48px;
+            width: 48px;
+            height: 48px;
+            border: 3px solid #E0E0E0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:hover {
+            border-color: #2196F3;
+            transform: scale(1.05);
+        }
+
+        .task-checkbox.completed {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            animation: checkboxComplete 0.3s ease;
+        }
+
+        @keyframes checkboxComplete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2196F3;
+            margin-bottom: 4px;
+        }
+
+        .task-name {
+            font-size: 16px;
+            color: #212121;
+            font-weight: 500;
+        }
+
+        .task-item.completed .task-name {
+            opacity: 0.6;
+        }
+
+        .task-icon {
+            font-size: 24px;
+        }
+
+        /* ==================== GYM EXERCISES ==================== */
+        .exercise-list {
+            list-style: none;
+        }
+
+        .exercise-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #F0F0F0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .exercise-item:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-checkbox {
+            min-width: 36px;
+            min-height: 36px;
+            width: 36px;
+            height: 36px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-checkbox.completed {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .exercise-info {
+            flex: 1;
+        }
+
+        .exercise-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .exercise-details {
+            font-size: 14px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* ==================== DARTS PRACTICE ==================== */
+        .darts-theme {
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            padding: 16px 20px;
+            margin-bottom: 0;
+            border-bottom: 1px solid #90CAF9;
+        }
+
+        .theme-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #1976D2;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .theme-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1565C0;
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 99;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+        }
+
+        .nav-button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #757575;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            min-height: 64px;
+        }
+
+        .nav-button:active {
+            background: #F5F5F5;
+        }
+
+        .nav-button .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-button.active {
+            color: #2196F3;
+        }
+
+        /* ==================== RESET BUTTON ==================== */
+        .reset-container {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .reset-button {
+            background: #F44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-button:active {
+            transform: scale(0.95);
+            background: #D32F2F;
+        }
+
+        /* ==================== CONFETTI CELEBRATION ==================== */
+        .confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ==================== STREAK COUNTER ==================== */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.25);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .streak-badge .streak-icon {
+            font-size: 16px;
+        }
+
+        /* ==================== CURRENT TIME INDICATOR ==================== */
+        .current-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.95);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #FF9800;
+            margin-left: 8px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #FF9800;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* ==================== WEEKEND STYLES ==================== */
+        .weekend-message {
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .weekend-message h2 {
+            font-size: 24px;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+
+        .weekend-message p {
+            font-size: 16px;
+            color: #388E3C;
+        }
+
+        /* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .block-title {
+                font-size: 18px;
+            }
+
+            .task-name {
+                font-size: 15px;
+            }
+
+            .container {
+                padding: 12px;
+            }
+        }
+
+        /* ==================== UTILITY CLASSES ==================== */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Progress -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🎯 Darts Routine Tracker</h1>
+            <div class="date" id="currentDate"></div>
+            <div class="streak-badge">
+                <span class="streak-icon">🔥</span>
+                <span id="streakCount">0 day streak</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%;">
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" id="mainContainer">
+        <!-- Content will be dynamically generated -->
+    </main>
+
+    <!-- Reset Button -->
+    <div class="reset-container">
+        <button class="reset-button" onclick="resetDay()">🔄 Reset Today</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-button" onclick="scrollToSection('morning')">
+            <span class="nav-icon">☀️</span>
+            <span>Morning</span>
+        </button>
+        <button class="nav-button" onclick="scrollToSection('gym')">
+            <span class="nav-icon">💪</span>
+            <span>Gym</span>
+        </button>
+        <button class="nav-button" onclick="scrollToSection('darts')">
+            <span class="nav-icon">🎯</span>
+            <span>Darts</span>
+        </button>
+        <button class="nav-button" onclick="scrollToSection('recovery')">
+            <span class="nav-icon">🧘</span>
+            <span>Recovery</span>
+        </button>
+    </nav>
+
+    <!-- Confetti Canvas -->
+    <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+    <script>
+        // ==================== DATA STRUCTURE ====================
+        const routineData = {
+            monday: {
+                morning: {
+                    title: "Morning Routine",
+                    icon: "☀️",
+                    time: "5:00am - 6:45am",
+                    tasks: [
+                        { id: 'wake', time: '5:00am', task: 'Wake, ice water chug, water chug', icon: '💧' },
+                        { id: 'colon', time: '5:05am', task: 'Colon Broom + TM Session #1 (20 min)', icon: '🧘' },
+                        { id: 'meds', time: '5:30am', task: 'Meds: Vyvanse 40mg, Vitamin D', icon: '💊' },
+                        { id: 'morning-darts', time: '6:00am', task: 'Morning Darts Practice (30 min)', icon: '🎯' }
+                    ]
+                },
+                workday: {
+                    title: "Work Day",
+                    icon: "💼",
+                    time: "Work Hours",
+                    tasks: [
+                        { id: 'lunch', time: '12:00pm', task: 'Lunch + Greens', icon: '🥗' },
+                        { id: 'tm2', time: '3:00pm', task: 'TM Session #2 (20 min)', icon: '🧘' },
+                        { id: 'preworkout', time: '3:45pm', task: 'Pre-workout nutrition', icon: '🥤' }
+                    ]
+                },
+                gym: {
+                    title: "Gym - Upper Pull + Core",
+                    icon: "💪",
+                    time: "4:00pm - 4:50pm",
+                    workout: "Upper Pull Day",
+                    exercises: [
+                        { id: 'lat-pulldown', name: 'Lat Pulldown', sets: '3x10', rest: '60s' },
+                        { id: 'cable-row', name: 'Seated Cable Row', sets: '3x10', rest: '60s' },
+                        { id: 'face-pulls', name: 'Face Pulls', sets: '3x15', rest: '45s' },
+                        { id: 'bicep-curls', name: 'Bicep Curls', sets: '3x12', rest: '45s' },
+                        { id: 'core', name: 'Core Circuit', sets: '3 rounds', rest: '30s' }
+                    ]
+                },
+                darts: {
+                    title: "Darts Practice #2",
+                    icon: "🎯",
+                    time: "5:15pm - 7:15pm",
+                    theme: "Checkout Practice - Scolia Drills",
+                    structure: [
+                        { id: 'warmup', task: 'Warm-up routine (10 min)', icon: '🎯' },
+                        { id: 'deepwork', task: 'Deep Work: Checkout drills (75 min)', icon: '🎯' },
+                        { id: 'applied', task: 'Applied practice: Competition sim (25 min)', icon: '🎯' },
+                        { id: 'cooldown', task: 'Cool-down + Scolia/GoDartsPro data export (10 min)', icon: '📊' }
+                    ]
+                },
+                recovery: {
+                    title: "Recovery & Wind Down",
+                    icon: "🧘",
+                    time: "7:15pm - 10:00pm",
+                    tasks: [
+                        { id: 'contrast', time: '7:15pm', task: 'Contrast shower therapy', icon: '🚿' },
+                        { id: 'dinner', time: '7:30pm', task: 'High-protein dinner + Greens', icon: '🍗' },
+                        { id: 'foam', time: '8:30pm', task: 'Foam rolling session', icon: '🧘' },
+                        { id: 'magnesium', time: '9:30pm', task: 'Magnesium supplement', icon: '💊' },
+                        { id: 'winddown', time: '9:45pm', task: 'Screen off, room prep, sleep prep', icon: '😴' }
+                    ]
+                }
+            },
+            tuesday: {
+                morning: {
+                    title: "Morning Routine",
+                    icon: "☀️",
+                    time: "5:00am - 6:45am",
+                    tasks: [
+                        { id: 'wake', time: '5:00am', task: 'Wake, ice water chug, water chug', icon: '💧' },
+                        { id: 'colon', time: '5:05am', task: 'Colon Broom + TM Session #1 (20 min)', icon: '🧘' },
+                        { id: 'meds', time: '5:30am', task: 'Meds: Vyvanse 40mg, Vitamin D', icon: '💊' },
+                        { id: 'morning-darts', time: '6:00am', task: 'Morning Darts Practice (30 min)', icon: '🎯' }
+                    ]
+                },
+                workday: {
+                    title: "Work Day",
+                    icon: "💼",
+                    time: "Work Hours",
+                    tasks: [
+                        { id: 'lunch', time: '12:00pm', task: 'Lunch + Greens', icon: '🥗' },
+                        { id: 'tm2', time: '3:00pm', task: 'TM Session #2 (20 min)', icon: '🧘' },
+                        { id: 'preworkout', time: '3:45pm', task: 'Pre-workout nutrition', icon: '🥤' }
+                    ]
+                },
+                gym: {
+                    title: "Gym - Legs Heavy",
+                    icon: "💪",
+                    time: "4:00pm - 4:50pm",
+                    workout: "Legs Heavy Day",
+                    exercises: [
+                        { id: 'squats', name: 'Barbell Squats', sets: '4x8', rest: '90s' },
+                        { id: 'rdl', name: 'Romanian Deadlifts', sets: '3x10', rest: '75s' },
+                        { id: 'leg-press', name: 'Leg Press', sets: '3x12', rest: '60s' },
+                        { id: 'leg-curls', name: 'Leg Curls', sets: '3x12', rest: '45s' },
+                        { id: 'calf-raises', name: 'Calf Raises', sets: '4x15', rest: '30s' }
+                    ]
+                },
+                darts: {
+                    title: "Darts Practice #2",
+                    icon: "🎯",
+                    time: "5:15pm - 7:15pm",
+                    theme: "20s Bed Precision Training",
+                    structure: [
+                        { id: 'warmup', task: 'Warm-up routine (10 min)', icon: '🎯' },
+                        { id: 'deepwork', task: 'Deep Work: 20s bed precision (75 min)', icon: '🎯' },
+                        { id: 'applied', task: 'Applied practice: Scoring rounds (25 min)', icon: '🎯' },
+                        { id: 'cooldown', task: 'Cool-down + data logging (10 min)', icon: '📊' }
+                    ]
+                },
+                recovery: {
+                    title: "Recovery & Wind Down",
+                    icon: "🧘",
+                    time: "7:15pm - 10:00pm",
+                    tasks: [
+                        { id: 'contrast', time: '7:15pm', task: 'Contrast shower therapy', icon: '🚿' },
+                        { id: 'dinner', time: '7:30pm', task: 'High-protein dinner + Greens', icon: '🍗' },
+                        { id: 'foam', time: '8:30pm', task: 'Foam rolling session', icon: '🧘' },
+                        { id: 'magnesium', time: '9:30pm', task: 'Magnesium supplement', icon: '💊' },
+                        { id: 'winddown', time: '9:45pm', task: 'Screen off, room prep, sleep prep', icon: '😴' }
+                    ]
+                }
+            },
+            wednesday: {
+                morning: {
+                    title: "Morning Routine",
+                    icon: "☀️",
+                    time: "5:00am - 6:45am",
+                    tasks: [
+                        { id: 'wake', time: '5:00am', task: 'Wake, ice water chug, water chug', icon: '💧' },
+                        { id: 'colon', time: '5:05am', task: 'Colon Broom + TM Session #1 (20 min)', icon: '🧘' },
+                        { id: 'meds', time: '5:30am', task: 'Meds: Vyvanse 40mg, Vitamin D', icon: '💊' },
+                        { id: 'morning-darts', time: '6:00am', task: 'Morning Darts Practice (30 min)', icon: '🎯' }
+                    ]
+                },
+                workday: {
+                    title: "Work Day",
+                    icon: "💼",
+                    time: "Work Hours",
+                    tasks: [
+                        { id: 'lunch', time: '12:00pm', task: 'Lunch + Greens', icon: '🥗' },
+                        { id: 'tm2', time: '3:00pm', task: 'TM Session #2 (20 min)', icon: '🧘' },
+                        { id: 'preworkout', time: '3:45pm', task: 'Pre-workout nutrition', icon: '🥤' }
+                    ]
+                },
+                gym: {
+                    title: "Gym - Cardio/Mobility",
+                    icon: "💪",
+                    time: "4:00pm - 4:50pm",
+                    workout: "Active Recovery Day",
+                    exercises: [
+                        { id: 'bike', name: 'Stationary Bike', sets: '15 min', rest: 'N/A' },
+                        { id: 'mobility', name: 'Full Body Mobility Flow', sets: '15 min', rest: 'N/A' },
+                        { id: 'yoga', name: 'Yoga Stretches', sets: '10 min', rest: 'N/A' },
+                        { id: 'core-light', name: 'Light Core Work', sets: '10 min', rest: 'N/A' }
+                    ]
+                },
+                darts: {
+                    title: "Darts Practice #2 - LEAGUE NIGHT",
+                    icon: "🎯",
+                    time: "5:15pm - 6:15pm",
+                    theme: "Pre-League Warm-up (60 min only)",
+                    structure: [
+                        { id: 'warmup', task: 'Extended warm-up routine (15 min)', icon: '🎯' },
+                        { id: 'deepwork', task: 'Competition-specific practice (35 min)', icon: '🎯' },
+                        { id: 'cooldown', task: 'Mental prep + pack gear (10 min)', icon: '🎒' }
+                    ]
+                },
+                recovery: {
+                    title: "League Night & Recovery",
+                    icon: "🏆",
+                    time: "6:15pm - Late",
+                    tasks: [
+                        { id: 'depart', time: '6:15pm', task: 'Depart for league night', icon: '🚗' },
+                        { id: 'league', time: '7:00pm', task: 'League match play', icon: '🏆' },
+                        { id: 'post-league', time: 'After', task: 'Post-match nutrition', icon: '🥤' },
+                        { id: 'winddown', time: 'Late', task: 'Quick wind-down routine', icon: '😴' }
+                    ]
+                }
+            },
+            thursday: {
+                morning: {
+                    title: "Morning Routine",
+                    icon: "☀️",
+                    time: "5:00am - 6:45am",
+                    tasks: [
+                        { id: 'wake', time: '5:00am', task: 'Wake, ice water chug, water chug', icon: '💧' },
+                        { id: 'colon', time: '5:05am', task: 'Colon Broom + TM Session #1 (20 min)', icon: '🧘' },
+                        { id: 'meds', time: '5:30am', task: 'Meds: Vyvanse 40mg, Vitamin D', icon: '💊' },
+                        { id: 'morning-darts', time: '6:00am', task: 'Morning Darts Practice (30 min)', icon: '🎯' }
+                    ]
+                },
+                workday: {
+                    title: "Work Day",
+                    icon: "💼",
+                    time: "Work Hours",
+                    tasks: [
+                        { id: 'lunch', time: '12:00pm', task: 'Lunch + Greens', icon: '🥗' },
+                        { id: 'tm2', time: '3:00pm', task: 'TM Session #2 (20 min)', icon: '🧘' },
+                        { id: 'preworkout', time: '3:45pm', task: 'Pre-workout nutrition', icon: '🥤' }
+                    ]
+                },
+                gym: {
+                    title: "Gym - Upper Push",
+                    icon: "💪",
+                    time: "4:00pm - 4:50pm",
+                    workout: "Upper Push Day",
+                    exercises: [
+                        { id: 'bench-press', name: 'Bench Press', sets: '4x8', rest: '90s' },
+                        { id: 'shoulder-press', name: 'Shoulder Press', sets: '3x10', rest: '60s' },
+                        { id: 'incline-db', name: 'Incline DB Press', sets: '3x10', rest: '60s' },
+                        { id: 'tricep-dips', name: 'Tricep Dips', sets: '3x12', rest: '45s' },
+                        { id: 'lateral-raises', name: 'Lateral Raises', sets: '3x15', rest: '30s' }
+                    ]
+                },
+                darts: {
+                    title: "Darts Practice #2",
+                    icon: "🎯",
+                    time: "5:15pm - 7:15pm",
+                    theme: "Bullseye & Doubles Precision",
+                    structure: [
+                        { id: 'warmup', task: 'Warm-up routine (10 min)', icon: '🎯' },
+                        { id: 'deepwork', task: 'Deep Work: Doubles practice (75 min)', icon: '🎯' },
+                        { id: 'applied', task: 'Applied: Bull finish drills (25 min)', icon: '🎯' },
+                        { id: 'cooldown', task: 'Cool-down + data analysis (10 min)', icon: '📊' }
+                    ]
+                },
+                recovery: {
+                    title: "Recovery & Wind Down",
+                    icon: "🧘",
+                    time: "7:15pm - 10:00pm",
+                    tasks: [
+                        { id: 'contrast', time: '7:15pm', task: 'Contrast shower therapy', icon: '🚿' },
+                        { id: 'dinner', time: '7:30pm', task: 'High-protein dinner + Greens', icon: '🍗' },
+                        { id: 'foam', time: '8:30pm', task: 'Foam rolling session', icon: '🧘' },
+                        { id: 'magnesium', time: '9:30pm', task: 'Magnesium supplement', icon: '💊' },
+                        { id: 'winddown', time: '9:45pm', task: 'Screen off, room prep, sleep prep', icon: '😴' }
+                    ]
+                }
+            },
+            friday: {
+                morning: {
+                    title: "Morning Routine",
+                    icon: "☀️",
+                    time: "5:00am - 6:45am",
+                    tasks: [
+                        { id: 'wake', time: '5:00am', task: 'Wake, ice water chug, water chug', icon: '💧' },
+                        { id: 'colon', time: '5:05am', task: 'Colon Broom + TM Session #1 (20 min)', icon: '🧘' },
+                        { id: 'meds', time: '5:30am', task: 'Meds: Vyvanse 40mg, Vitamin D', icon: '💊' },
+                        { id: 'morning-darts', time: '6:00am', task: 'Morning Darts Practice (30 min)', icon: '🎯' }
+                    ]
+                },
+                workday: {
+                    title: "Work Day",
+                    icon: "💼",
+                    time: "Work Hours",
+                    tasks: [
+                        { id: 'lunch', time: '12:00pm', task: 'Lunch + Greens', icon: '🥗' },
+                        { id: 'tm2', time: '3:00pm', task: 'TM Session #2 (20 min)', icon: '🧘' },
+                        { id: 'preworkout', time: '3:45pm', task: 'Pre-workout nutrition', icon: '🥤' }
+                    ]
+                },
+                gym: {
+                    title: "Gym - Full Body",
+                    icon: "💪",
+                    time: "4:00pm - 4:50pm",
+                    workout: "Full Body Power Day",
+                    exercises: [
+                        { id: 'deadlifts', name: 'Deadlifts', sets: '3x6', rest: '2 min' },
+                        { id: 'pull-ups', name: 'Pull-ups', sets: '3x8', rest: '90s' },
+                        { id: 'push-ups', name: 'Push-ups', sets: '3x15', rest: '60s' },
+                        { id: 'goblet-squat', name: 'Goblet Squats', sets: '3x12', rest: '60s' },
+                        { id: 'plank', name: 'Plank Holds', sets: '3x60s', rest: '45s' }
+                    ]
+                },
+                darts: {
+                    title: "Darts Practice #2",
+                    icon: "🎯",
+                    time: "5:15pm - 7:15pm",
+                    theme: "Game Simulation & Weekly Review",
+                    structure: [
+                        { id: 'warmup', task: 'Warm-up routine (10 min)', icon: '🎯' },
+                        { id: 'deepwork', task: 'Full game simulations (75 min)', icon: '🎯' },
+                        { id: 'applied', task: 'Pressure practice scenarios (25 min)', icon: '🎯' },
+                        { id: 'cooldown', task: 'Weekly data review + planning (10 min)', icon: '📊' }
+                    ]
+                },
+                recovery: {
+                    title: "Recovery & Wind Down",
+                    icon: "🧘",
+                    time: "7:15pm - 10:00pm",
+                    tasks: [
+                        { id: 'contrast', time: '7:15pm', task: 'Contrast shower therapy', icon: '🚿' },
+                        { id: 'dinner', time: '7:30pm', task: 'High-protein dinner + Greens', icon: '🍗' },
+                        { id: 'foam', time: '8:30pm', task: 'Foam rolling session', icon: '🧘' },
+                        { id: 'magnesium', time: '9:30pm', task: 'Magnesium supplement', icon: '💊' },
+                        { id: 'winddown', time: '9:45pm', task: 'Screen off, room prep, sleep prep', icon: '😴' }
+                    ]
+                }
+            },
+            saturday: {
+                morning: {
+                    title: "Weekend Morning",
+                    icon: "☀️",
+                    time: "Sleep in, natural wake",
+                    tasks: [
+                        { id: 'wake', time: 'Natural', task: 'Wake naturally, hydrate', icon: '💧' },
+                        { id: 'tm', time: 'Morning', task: 'Leisurely TM session', icon: '🧘' },
+                        { id: 'breakfast', time: 'Morning', task: 'Healthy breakfast + Greens', icon: '🥗' }
+                    ]
+                },
+                restday: {
+                    title: "Active Rest Day",
+                    icon: "🌿",
+                    time: "Throughout day",
+                    tasks: [
+                        { id: 'walk', time: 'Midday', task: 'Light walk or outdoor activity', icon: '🚶' },
+                        { id: 'optional-darts', time: 'Optional', task: 'Light darts practice (fun, no pressure)', icon: '🎯' },
+                        { id: 'weekly-review', time: 'Afternoon', task: 'Weekly training review & data analysis', icon: '📊' },
+                        { id: 'meal-prep', time: 'Evening', task: 'Meal prep for upcoming week', icon: '🍱' }
+                    ]
+                },
+                recovery: {
+                    title: "Weekend Recovery",
+                    icon: "🧘",
+                    time: "Evening",
+                    tasks: [
+                        { id: 'stretching', time: 'Evening', task: 'Extended stretching session', icon: '🧘' },
+                        { id: 'foam-roll', time: 'Evening', task: 'Thorough foam rolling', icon: '🧘' },
+                        { id: 'dinner', time: 'Evening', task: 'Relaxed dinner + Greens', icon: '🍽️' },
+                        { id: 'winddown', time: 'Night', task: 'Relaxation & sleep prep', icon: '😴' }
+                    ]
+                }
+            },
+            sunday: {
+                morning: {
+                    title: "Sunday Morning",
+                    icon: "☀️",
+                    time: "Sleep in, natural wake",
+                    tasks: [
+                        { id: 'wake', time: 'Natural', task: 'Wake naturally, hydrate', icon: '💧' },
+                        { id: 'tm', time: 'Morning', task: 'TM session', icon: '🧘' },
+                        { id: 'breakfast', time: 'Morning', task: 'Healthy breakfast + Greens', icon: '🥗' }
+                    ]
+                },
+                mobility: {
+                    title: "Mobility & Planning",
+                    icon: "🧘",
+                    time: "Midday",
+                    tasks: [
+                        { id: 'mobility-session', time: 'Midday', task: 'Full mobility session (45 min)', icon: '🧘' },
+                        { id: 'light-cardio', time: 'Midday', task: 'Light cardio (20 min walk/bike)', icon: '🚴' },
+                        { id: 'weekly-plan', time: 'Afternoon', task: 'Plan upcoming week training', icon: '📅' },
+                        { id: 'goal-review', time: 'Afternoon', task: 'Review goals & adjust targets', icon: '🎯' }
+                    ]
+                },
+                preparation: {
+                    title: "Week Preparation",
+                    icon: "📋",
+                    time: "Evening",
+                    tasks: [
+                        { id: 'gear-check', time: 'Evening', task: 'Check all darts gear & equipment', icon: '🎯' },
+                        { id: 'meal-prep', time: 'Evening', task: 'Final meal prep', icon: '🍱' },
+                        { id: 'early-bed', time: 'Night', task: 'Early bedtime for Monday readiness', icon: '😴' }
+                    ]
+                }
+            }
+        };
+
+        // ==================== STATE MANAGEMENT ====================
+        let completionState = {};
+        let currentDay = '';
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            checkAndResetIfNewDay();
+            loadState();
+            updateUI();
+            updateDateTime();
+            setInterval(updateDateTime, 60000); // Update every minute
+            setInterval(highlightCurrentBlock, 60000); // Check current block every minute
+            scrollToCurrentBlock();
+        }
+
+        // ==================== DATE & TIME MANAGEMENT ====================
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function getDayKey() {
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            return days[new Date().getDay()];
+        }
+
+        function checkAndResetIfNewDay() {
+            const today = new Date().toDateString();
+            const lastDate = localStorage.getItem('lastDate');
+
+            if (lastDate !== today) {
+                // New day - reset everything
+                localStorage.setItem('lastDate', today);
+                localStorage.removeItem('completionState');
+                completionState = {};
+
+                // Update streak
+                updateStreak();
+            }
+        }
+
+        // ==================== STREAK MANAGEMENT ====================
+        function updateStreak() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayKey = yesterday.toDateString();
+
+            const yesterdayCompletion = localStorage.getItem(`completion_${yesterdayKey}`);
+            const currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+
+            if (yesterdayCompletion && parseFloat(yesterdayCompletion) >= 80) {
+                // Yesterday was completed, continue streak
+                const streakCount = document.getElementById('streakCount');
+                streakCount.textContent = `${currentStreak} day streak`;
+            } else if (currentStreak > 0 && !yesterdayCompletion) {
+                // Streak broken
+                localStorage.setItem('currentStreak', '0');
+                document.getElementById('streakCount').textContent = '0 day streak';
+            }
+        }
+
+        // ==================== STATE PERSISTENCE ====================
+        function loadState() {
+            const saved = localStorage.getItem('completionState');
+            completionState = saved ? JSON.parse(saved) : {};
+            currentDay = getDayKey();
+        }
+
+        function saveState() {
+            localStorage.setItem('completionState', JSON.stringify(completionState));
+
+            // Save completion percentage for streak tracking
+            const progress = calculateProgress();
+            const today = new Date().toDateString();
+            localStorage.setItem(`completion_${today}`, progress.toString());
+
+            // Update streak if day is complete
+            if (progress >= 80) {
+                const currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+                const newStreak = currentStreak + 1;
+                localStorage.setItem('currentStreak', newStreak.toString());
+                document.getElementById('streakCount').textContent = `${newStreak} day streak`;
+
+                // Celebrate!
+                if (progress === 100) {
+                    triggerConfetti();
+                }
+            }
+        }
+
+        // ==================== PROGRESS CALCULATION ====================
+        function calculateProgress() {
+            const dayData = routineData[currentDay];
+            if (!dayData) return 0;
+
+            let total = 0;
+            let completed = 0;
+
+            // Count all tasks and exercises
+            Object.keys(dayData).forEach(blockKey => {
+                const block = dayData[blockKey];
+
+                if (block.tasks) {
+                    total += block.tasks.length;
+                    block.tasks.forEach(task => {
+                        if (completionState[task.id]) completed++;
+                    });
+                }
+
+                if (block.exercises) {
+                    total += block.exercises.length;
+                    block.exercises.forEach(exercise => {
+                        if (completionState[exercise.id]) completed++;
+                    });
+                }
+
+                if (block.structure) {
+                    total += block.structure.length;
+                    block.structure.forEach(item => {
+                        if (completionState[item.id]) completed++;
+                    });
+                }
+            });
+
+            return total > 0 ? Math.round((completed / total) * 100) : 0;
+        }
+
+        function updateProgress() {
+            const progress = calculateProgress();
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+
+            saveState();
+        }
+
+        // ==================== UI RENDERING ====================
+        function updateUI() {
+            const container = document.getElementById('mainContainer');
+            const dayData = routineData[currentDay];
+
+            if (!dayData) {
+                container.innerHTML = '<div class="weekend-message"><h2>No routine found</h2></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // Render each time block
+            Object.keys(dayData).forEach(blockKey => {
+                const block = dayData[blockKey];
+                const blockEl = createTimeBlock(blockKey, block);
+                container.appendChild(blockEl);
+            });
+
+            updateProgress();
+            highlightCurrentBlock();
+        }
+
+        function createTimeBlock(blockKey, block) {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'time-block';
+            blockDiv.id = `block-${blockKey}`;
+
+            // Calculate block progress
+            let blockTotal = 0;
+            let blockCompleted = 0;
+
+            if (block.tasks) {
+                blockTotal += block.tasks.length;
+                block.tasks.forEach(task => {
+                    if (completionState[task.id]) blockCompleted++;
+                });
+            }
+            if (block.exercises) {
+                blockTotal += block.exercises.length;
+                block.exercises.forEach(ex => {
+                    if (completionState[ex.id]) blockCompleted++;
+                });
+            }
+            if (block.structure) {
+                blockTotal += block.structure.length;
+                block.structure.forEach(item => {
+                    if (completionState[item.id]) blockCompleted++;
+                });
+            }
+
+            const progressText = `${blockCompleted}/${blockTotal}`;
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'block-header';
+            header.innerHTML = `
+                <div class="block-header-left">
+                    <div class="block-icon">${block.icon}</div>
+                    <div>
+                        <div class="block-title">${block.title}</div>
+                        <div class="block-time">${block.time}</div>
+                    </div>
+                </div>
+                <div class="block-progress">${progressText}</div>
+            `;
+
+            blockDiv.appendChild(header);
+
+            // Content
+            const content = document.createElement('div');
+            content.className = 'block-content';
+
+            // Darts theme if present
+            if (block.theme) {
+                const themeDiv = document.createElement('div');
+                themeDiv.className = 'darts-theme';
+                themeDiv.innerHTML = `
+                    <div class="theme-label">Today's Focus</div>
+                    <div class="theme-text">${block.theme}</div>
+                `;
+                content.appendChild(themeDiv);
+            }
+
+            // Tasks
+            if (block.tasks) {
+                const taskList = document.createElement('ul');
+                taskList.className = 'task-list';
+
+                block.tasks.forEach(task => {
+                    const li = createTaskItem(task);
+                    taskList.appendChild(li);
+                });
+
+                content.appendChild(taskList);
+            }
+
+            // Exercises
+            if (block.exercises) {
+                const exerciseList = document.createElement('ul');
+                exerciseList.className = 'exercise-list';
+
+                block.exercises.forEach(exercise => {
+                    const li = createExerciseItem(exercise);
+                    exerciseList.appendChild(li);
+                });
+
+                content.appendChild(exerciseList);
+            }
+
+            // Darts structure
+            if (block.structure) {
+                const structureList = document.createElement('ul');
+                structureList.className = 'task-list';
+
+                block.structure.forEach(item => {
+                    const li = createTaskItem(item);
+                    structureList.appendChild(li);
+                });
+
+                content.appendChild(structureList);
+            }
+
+            blockDiv.appendChild(content);
+            return blockDiv;
+        }
+
+        function createTaskItem(task) {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            if (completionState[task.id]) li.classList.add('completed');
+
+            const checkbox = document.createElement('div');
+            checkbox.className = 'task-checkbox';
+            if (completionState[task.id]) {
+                checkbox.classList.add('completed');
+                checkbox.textContent = '✓';
+            }
+            checkbox.onclick = () => toggleTask(task.id);
+
+            const info = document.createElement('div');
+            info.className = 'task-info';
+            info.innerHTML = `
+                ${task.time ? `<div class="task-time">${task.time}</div>` : ''}
+                <div class="task-name">${task.task}</div>
+            `;
+
+            const icon = document.createElement('div');
+            icon.className = 'task-icon';
+            icon.textContent = task.icon;
+
+            li.appendChild(checkbox);
+            li.appendChild(info);
+            li.appendChild(icon);
+
+            return li;
+        }
+
+        function createExerciseItem(exercise) {
+            const li = document.createElement('li');
+            li.className = 'exercise-item';
+            if (completionState[exercise.id]) li.classList.add('completed');
+
+            const checkbox = document.createElement('div');
+            checkbox.className = 'exercise-checkbox';
+            if (completionState[exercise.id]) {
+                checkbox.classList.add('completed');
+                checkbox.textContent = '✓';
+            }
+            checkbox.onclick = () => toggleTask(exercise.id);
+
+            const info = document.createElement('div');
+            info.className = 'exercise-info';
+            info.innerHTML = `
+                <div class="exercise-name">${exercise.name}</div>
+                <div class="exercise-details">${exercise.sets}${exercise.rest ? ` • Rest: ${exercise.rest}` : ''}</div>
+            `;
+
+            li.appendChild(checkbox);
+            li.appendChild(info);
+
+            return li;
+        }
+
+        // ==================== TASK COMPLETION ====================
+        function toggleTask(taskId) {
+            completionState[taskId] = !completionState[taskId];
+            updateUI();
+        }
+
+        // ==================== TIME-AWARE FEATURES ====================
+        function getCurrentTimeBlock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const totalMinutes = hours * 60 + minutes;
+
+            // Define time ranges (in minutes from midnight)
+            const ranges = {
+                morning: { start: 5 * 60, end: 6 * 60 + 45 },      // 5:00am - 6:45am
+                workday: { start: 6 * 60 + 45, end: 16 * 60 },     // 6:45am - 4:00pm
+                gym: { start: 16 * 60, end: 16 * 60 + 50 },        // 4:00pm - 4:50pm
+                darts: { start: 17 * 60 + 15, end: 19 * 60 + 15 }, // 5:15pm - 7:15pm
+                recovery: { start: 19 * 60 + 15, end: 22 * 60 }    // 7:15pm - 10:00pm
+            };
+
+            for (let [block, range] of Object.entries(ranges)) {
+                if (totalMinutes >= range.start && totalMinutes < range.end) {
+                    return block;
+                }
+            }
+
+            return null;
+        }
+
+        function highlightCurrentBlock() {
+            const currentBlock = getCurrentTimeBlock();
+
+            // Remove all current highlights
+            document.querySelectorAll('.time-block.current').forEach(el => {
+                el.classList.remove('current');
+            });
+
+            // Add highlight to current block
+            if (currentBlock) {
+                const blockEl = document.getElementById(`block-${currentBlock}`);
+                if (blockEl) {
+                    blockEl.classList.add('current');
+                }
+            }
+        }
+
+        function scrollToCurrentBlock() {
+            const currentBlock = getCurrentTimeBlock();
+            if (currentBlock) {
+                setTimeout(() => {
+                    const blockEl = document.getElementById(`block-${currentBlock}`);
+                    if (blockEl) {
+                        blockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            }
+        }
+
+        // ==================== NAVIGATION ====================
+        function scrollToSection(section) {
+            const blockEl = document.getElementById(`block-${section}`);
+            if (blockEl) {
+                blockEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // ==================== RESET FUNCTIONALITY ====================
+        function resetDay() {
+            if (confirm('Are you sure you want to reset today? All progress will be lost.')) {
+                completionState = {};
+                saveState();
+                updateUI();
+            }
+        }
+
+        // ==================== CONFETTI CELEBRATION ====================
+        function triggerConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const confetti = [];
+            const colors = ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'];
+
+            // Create confetti pieces
+            for (let i = 0; i < 150; i++) {
+                confetti.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    speed: Math.random() * 3 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 10 - 5
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confetti.forEach((piece, index) => {
+                    ctx.save();
+                    ctx.translate(piece.x, piece.y);
+                    ctx.rotate(piece.rotation * Math.PI / 180);
+                    ctx.fillStyle = piece.color;
+                    ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size);
+                    ctx.restore();
+
+                    piece.y += piece.speed;
+                    piece.rotation += piece.rotationSpeed;
+
+                    if (piece.y > canvas.height) {
+                        confetti.splice(index, 1);
+                    }
+                });
+
+                if (confetti.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+
+            animate();
+        }
+
+        // ==================== START APPLICATION ====================
+        window.onload = init;
+    </script>
+</body>
+</html>
