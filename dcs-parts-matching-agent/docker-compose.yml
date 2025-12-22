@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  dcs-parts-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dcs-parts-agent
+    ports:
+      - "8000:8000"
+    environment:
+      # API Keys (set these in .env file or here)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+      # Model settings
+      - USE_VISION_MODEL=${USE_VISION_MODEL:-gpt-4-vision-preview}
+      - USE_EMBEDDING_MODEL=${USE_EMBEDDING_MODEL:-text-embedding-3-large}
+
+      # API settings
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_WORKERS=${API_WORKERS:-4}
+      - DEBUG=${DEBUG:-false}
+
+      # Paths
+      - CATALOG_PATH=/app/data/catalog
+      - UPLOAD_DIR=/app/data/uploads
+      - VECTOR_DB_PATH=/app/data/vector_db
+      - LOG_FILE=/app/logs/app.log
+
+      # Features
+      - AUTO_INDEX_ON_STARTUP=${AUTO_INDEX_ON_STARTUP:-true}
+      - ENABLE_CACHING=${ENABLE_CACHING:-true}
+
+    volumes:
+      # Mount catalog directory (place your catalog files here)
+      - ./data/catalog:/app/data/catalog
+
+      # Mount uploads directory
+      - ./data/uploads:/app/data/uploads
+
+      # Mount vector database for persistence
+      - ./data/vector_db:/app/data/vector_db
+
+      # Mount logs
+      - ./logs:/app/logs
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - dcs-network
+
+  # Optional: Nginx reverse proxy (uncomment if needed)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: dcs-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - dcs-parts-agent
+  #   networks:
+  #     - dcs-network
+
+networks:
+  dcs-network:
+    driver: bridge
+
+volumes:
+  catalog-data:
+  vector-db-data:
+  logs-data:
